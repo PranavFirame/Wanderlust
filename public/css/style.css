@@ -1,0 +1,141 @@
+body{
+    font-family: "Plus Jakarta Sans", sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.container{
+    flex: 1;
+}
+.navbar{
+    height: 5rem;
+    background-color: #fff;
+}
+
+.fa-compass{
+    color: #fe424d;
+    font-size: 2rem;
+}
+
+.nav-link{
+    color: black;
+}
+
+
+/* Footer */
+.f-info{
+    text-align: center;
+    height: 8rem;
+    background-color: #ebebeb;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: space-evenly;
+}
+
+.f-info-socials i{
+    font-size: 1.3rem;
+    margin: 0 1rem;
+}
+
+.f-info-socials,
+.f-info-links,
+.f-info-brand{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.f-info-links a{
+    text-decoration: none;
+    color: #222222 ;
+}
+
+.f-info-links a:hover{
+    text-decoration: underline;
+}
+
+
+/* Cards */
+.index-h3{
+    margin-top: 2rem;
+}
+.row{
+    width: 100%;
+}
+.card{
+    border: none;
+    margin-bottom: 2.1rem;
+}
+
+.card-img-top{
+    border-radius: 1rem;
+    width: 100%;
+    object-fit: cover;
+}
+
+.card-body{
+    padding: 0;
+}
+
+.card-text p{
+    font-weight: 400;
+}
+
+.listing-link{
+    text-decoration: none;
+}
+
+.card-img-overlay{
+    opacity: 0;
+    transition: opacity .3s;
+}
+
+.card-img-overlay:hover{
+    opacity: 0.1;
+    background-color: rgb(255, 255, 255);
+}
+
+.add-btn{
+    background-color: #fe424d;
+    border: none;
+    width: 5rem;
+    height: 2.5rem;
+    transform: scale(95%);
+    transition: transform 0.5s;
+
+}
+.add-btn a{
+    text-decoration: none;
+    color: white;
+}
+.add-btn:hover{
+ transform: scale(100%);
+ background-color: #fe424d;
+}
+
+.btn-dark{
+    border: none;
+    width: 5rem;
+    height: 2.5rem;
+    transform: scale(95%);
+    transition: transform 0.5s;
+}
+.btn-dark:hover{
+    transform: scale(100%);
+}
+
+/* ----------- Show page ---------- */
+.show-img{
+    height: 30vh;
+}
+
+.btns{
+    display: flex;
+    padding: 0;
+}
+.show-card{
+    padding-left: 0;
+    padding-right: 0;
+}
