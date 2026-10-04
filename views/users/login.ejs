@@ -1,0 +1,89 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-compass text-danger fa-3x mb-2"></i>
+            <h2>Welcome back</h2>
+            <p class="auth-subtext">Log in to your WanderLust account to manage listings and bookings.</p>
+        </div>
+
+        <!-- Quick 1-Click Demo Login Button for instant access -->
+        <div class="mb-3">
+            <button type="button" class="btn-demo-login" onclick="fillAdminCredentials()">
+                <i class="fa-solid fa-wand-magic-sparkles text-primary"></i> 1-Click Demo Admin Login
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center my-3">
+            <hr class="flex-grow-1">
+            <span class="px-2 text-muted" style="font-size: 0.8rem;">OR</span>
+            <hr class="flex-grow-1">
+        </div>
+
+        <form action="/login" method="POST" novalidate class="needs-validation" id="loginForm">
+            <div class="mb-3">
+                <label for="username" class="form-label fw-semibold">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-user text-secondary"></i></span>
+                    <input 
+                        name="username" 
+                        id="username" 
+                        type="text" 
+                        class="form-control form-control-custom" 
+                        placeholder="e.g. admin" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label fw-semibold">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-secondary"></i></span>
+                    <input 
+                        name="password" 
+                        id="password" 
+                        type="password" 
+                        class="form-control form-control-custom" 
+                        placeholder="Enter your password" 
+                        required
+                    >
+                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">
+                        <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn-auth-submit mt-2 mb-3">
+                Log In
+            </button>
+        </form>
+
+        <p class="text-center text-secondary mb-0" style="font-size: 0.9rem;">
+            Don't have an account? <a href="/signup" class="text-dark fw-bold text-decoration-none">Sign up</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const icon = document.getElementById('togglePasswordIcon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    function fillAdminCredentials() {
+        document.getElementById('username').value = 'admin';
+        document.getElementById('password').value = 'admin123';
+        document.getElementById('loginForm').submit();
+    }
+</script>

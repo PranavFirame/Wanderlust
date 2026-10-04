@@ -1,0 +1,259 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container py-4">
+    <!-- Profile Page Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold mb-1">Account & Profile Settings</h2>
+            <p class="text-secondary small mb-0">Manage your personal details, profile picture, password, and listings.</p>
+        </div>
+        <a href="/listings/new" class="btn btn-outline-dark rounded-pill px-3 py-2 btn-sm">
+            <i class="fa-solid fa-plus me-1"></i> Add New Listing
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Personal Info & Password Settings -->
+        <div class="col-lg-7">
+            <!-- 1. Personal Information Card -->
+            <div class="card border rounded-4 p-4 shadow-sm mb-4">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-user-pen text-primary"></i> Personal Details
+                </h5>
+
+                <form action="/profile?_method=PUT" method="POST" enctype="multipart/form-data" novalidate class="needs-validation">
+                    <!-- Avatar Preview & Upload -->
+                    <div class="d-flex align-items-center gap-4 mb-4 pb-3 border-bottom flex-wrap">
+                        <div class="position-relative">
+                            <% if (user.avatar && user.avatar.url) { %>
+                                <img id="profileAvatarPreview" src="<%= user.avatar.url %>" alt="Profile" class="rounded-circle shadow-sm" style="width: 90px; height: 90px; object-fit: cover;">
+                            <% } else { %>
+                                <div id="profileAvatarFallback" class="user-avatar-circle shadow-sm" style="width: 90px; height: 90px; font-size: 2.2rem; font-weight: 800;">
+                                    <%= user.username.charAt(0).toUpperCase() %>
+                                </div>
+                                <img id="profileAvatarPreview" src="#" alt="Profile Preview" class="rounded-circle shadow-sm d-none" style="width: 90px; height: 90px; object-fit: cover;">
+                            <% } %>
+                        </div>
+                        <div class="flex-grow-1">
+                            <label for="avatar" class="form-label fw-semibold small mb-1">Change Profile Picture</label>
+                            <input 
+                                type="file" 
+                                name="avatar" 
+                                id="avatar" 
+                                class="form-control form-control-sm form-control-custom" 
+                                accept="image/*"
+                                onchange="previewAvatar(event)"
+                            >
+                            <div class="form-text" style="font-size: 0.78rem;">JPG, PNG, or WebP. Max 5MB recommended.</div>
+                        </div>
+                    </div>
+
+                    <!-- Username & Email -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Username</label>
+                            <input type="text" class="form-control form-control-custom bg-light" value="@<%= user.username %>" disabled readonly>
+                            <div class="form-text" style="font-size: 0.75rem;">Username cannot be changed.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label fw-semibold small">Email Address</label>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                id="email" 
+                                class="form-control form-control-custom" 
+                                value="<%= user.email %>" 
+                                required
+                            >
+                            <div class="invalid-feedback">Please enter a valid email.</div>
+                        </div>
+                    </div>
+
+                    <!-- Display Name & Phone -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label fw-semibold small">Full / Display Name</label>
+                            <input 
+                                type="text" 
+                                name="name" 
+                                id="name" 
+                                class="form-control form-control-custom" 
+                                placeholder="e.g. John Doe"
+                                value="<%= user.name || '' %>"
+                            >
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label fw-semibold small">Phone Number</label>
+                            <input 
+                                type="text" 
+                                name="phone" 
+                                id="phone" 
+                                class="form-control form-control-custom" 
+                                placeholder="+91 98765 43210"
+                                value="<%= user.phone || '' %>"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="mb-4">
+                        <label for="bio" class="form-label fw-semibold small">About Me (Bio)</label>
+                        <textarea 
+                            name="bio" 
+                            id="bio" 
+                            rows="3" 
+                            class="form-control form-control-custom" 
+                            placeholder="Tell hosts and guests a little about yourself, hobbies, or travel philosophy..."
+                        ><%= user.bio || '' %></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-danger btn-auth-submit rounded-pill px-4" style="width: auto;">
+                            Save Personal Details
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 2. Security & Password Update Card -->
+            <div class="card border rounded-4 p-4 shadow-sm">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-lock text-primary"></i> Change Password
+                </h5>
+                <p class="text-secondary small mb-3">Ensure your account uses a secure password to keep your bookings and listings safe.</p>
+
+                <form action="/profile/password?_method=PUT" method="POST" novalidate class="needs-validation">
+                    <div class="mb-3">
+                        <label for="oldPassword" class="form-label fw-semibold small">Current Password</label>
+                        <input 
+                            type="password" 
+                            name="oldPassword" 
+                            id="oldPassword" 
+                            class="form-control form-control-custom" 
+                            placeholder="Enter current password" 
+                            required
+                        >
+                        <div class="invalid-feedback">Please enter your current password.</div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="newPassword" class="form-label fw-semibold small">New Password</label>
+                            <input 
+                                type="password" 
+                                name="newPassword" 
+                                id="newPassword" 
+                                class="form-control form-control-custom" 
+                                placeholder="Minimum 4 characters" 
+                                required
+                            >
+                            <div class="invalid-feedback">Please provide a new password.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="confirmPassword" class="form-label fw-semibold small">Confirm New Password</label>
+                            <input 
+                                type="password" 
+                                name="confirmPassword" 
+                                id="confirmPassword" 
+                                class="form-control form-control-custom" 
+                                placeholder="Re-type new password" 
+                                required
+                            >
+                            <div class="invalid-feedback">Please confirm your new password.</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-outline-dark rounded-pill px-4 py-2">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: My Listings & Quick Info -->
+        <div class="col-lg-5">
+            <!-- Account Summary Card -->
+            <div class="card border rounded-4 p-4 shadow-sm mb-4 bg-light">
+                <div class="d-flex align-items-center gap-3">
+                    <% if (user.avatar && user.avatar.url) { %>
+                        <img src="<%= user.avatar.url %>" class="rounded-circle shadow-sm" style="width: 55px; height: 55px; object-fit: cover;">
+                    <% } else { %>
+                        <div class="user-avatar-circle" style="width: 55px; height: 55px; font-size: 1.4rem;">
+                            <%= user.username.charAt(0).toUpperCase() %>
+                        </div>
+                    <% } %>
+                    <div>
+                        <h6 class="fw-bold mb-0"><%= user.name || user.username %></h6>
+                        <span class="badge bg-danger rounded-pill">Host Member</span>
+                        <p class="text-secondary small mb-0 mt-1"><i class="fa-solid fa-envelope me-1"></i><%= user.email %></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Listings Management -->
+            <div class="card border rounded-4 p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-house-chimney text-primary"></i> My Listings
+                    </h5>
+                    <span class="badge bg-secondary rounded-pill"><%= userListings.length %> Total</span>
+                </div>
+
+                <% if (userListings && userListings.length > 0) { %>
+                    <div class="list-group list-group-flush">
+                        <% for (let listing of userListings) { %>
+                            <div class="list-group-item px-0 py-3 d-flex align-items-center justify-content-between gap-3">
+                                <div class="d-flex align-items-center gap-3 overflow-hidden">
+                                    <img 
+                                        src="<%= (listing.image && typeof listing.image === 'string' && listing.image.trim()) ? listing.image.trim() : (listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=150&q=60') %>" 
+                                        alt="<%= listing.title %>" 
+                                        class="rounded-3" 
+                                        style="width: 60px; height: 60px; object-fit: cover; flex-shrink: 0;"
+                                    >
+                                    <div class="overflow-hidden">
+                                        <h6 class="fw-bold text-truncate mb-0" style="font-size: 0.92rem;"><%= listing.title %></h6>
+                                        <span class="text-secondary small d-block">&#8377;<%= listing.price.toLocaleString("en-IN") %> / night</span>
+                                        <span class="text-muted small"><%= listing.location %>, <%= listing.country %></span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                    <a href="/listings/<%= listing._id %>" class="btn btn-sm btn-outline-secondary rounded-circle" title="View">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </a>
+                                    <a href="/listings/<%= listing._id %>/edit" class="btn btn-sm btn-outline-dark rounded-circle" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4">
+                        <i class="fa-solid fa-house-laptop text-muted fa-2x mb-2"></i>
+                        <p class="text-secondary small mb-3">You haven't published any listings yet.</p>
+                        <a href="/listings/new" class="btn btn-sm btn-dark rounded-pill px-3">List Your Space</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewAvatar(event) {
+        const input = event.target;
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('profileAvatarPreview');
+                const fallback = document.getElementById('profileAvatarFallback');
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
+                if (fallback) fallback.classList.add('d-none');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>

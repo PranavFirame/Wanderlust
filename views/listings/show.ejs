@@ -1,0 +1,486 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="show-container">
+    <!-- Breadcrumb & Title Header -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb" style="font-size: 0.85rem;">
+            <li class="breadcrumb-item"><a href="/listings" class="text-secondary text-decoration-none">Listings</a></li>
+            <li class="breadcrumb-item"><a href="/listings?category=<%= listing.category %>" class="text-secondary text-decoration-none"><%= listing.category %></a></li>
+            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page"><%= listing.title %></li>
+        </ol>
+    </nav>
+
+    <h1 class="show-header-title"><%= listing.title %></h1>
+
+    <!-- Meta Details Bar -->
+    <div class="show-header-meta">
+        <div class="show-meta-left">
+            <span class="card-rating-badge fw-bold">
+                <i class="fa-solid fa-star text-dark"></i>
+                <%= listing.reviews.length > 0 ? (4.8 + ((listing.reviews.length % 3) * 0.05)).toFixed(2) : '4.95' %>
+            </span>
+            <span class="text-secondary">&middot;</span>
+            <a href="#reviewsSection" class="text-dark fw-semibold"><%= listing.reviews.length %> reviews</a>
+            <span class="text-secondary">&middot;</span>
+            <span class="badge bg-light text-dark border"><%= listing.category || 'Trending' %></span>
+            <span class="text-secondary">&middot;</span>
+            <a href="#mapSection" class="text-dark">
+                <i class="fa-solid fa-location-dot me-1 text-danger"></i>
+                <%= listing.location %>, <%= listing.country %>
+            </a>
+        </div>
+
+        <div class="show-meta-actions">
+            <button class="meta-action-btn" onclick="shareListing()" title="Share this place">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i> Share
+            </button>
+            <button class="meta-action-btn" id="saveListingBtn" onclick="toggleSave('<%= listing._id %>')" title="Save to favorites">
+                <i class="fa-regular fa-heart" id="saveHeartIcon"></i> Save
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Image Gallery -->
+    <div class="show-hero-gallery">
+        <img 
+            src="<%= (listing.image && typeof listing.image === 'string' && listing.image.trim()) ? listing.image.trim() : (listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80') %>" 
+            alt="<%= listing.title %>"
+        >
+    </div>
+
+    <!-- Owner Toolbar if current user is owner -->
+    <% if(currUser && listing.owner && currUser._id.equals(listing.owner._id)) { %>
+        <div class="admin-toolbar">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-primary fs-5"></i>
+                <div>
+                    <strong class="d-block text-dark">You are the host of this listing</strong>
+                    <small class="text-secondary">You can update details, change pricing, or manage availability.</small>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit Listing
+                </a>
+                <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="m-0" onsubmit="return confirm('Are you sure you want to delete this listing permanently?');">
+                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                        <i class="fa-solid fa-trash-can me-1"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Main Content Grid -->
+    <div class="row g-5">
+        <!-- Left Column: Details -->
+        <div class="col-lg-7">
+            <!-- Host Info -->
+            <div class="host-profile-card">
+                <div>
+                    <h4 class="host-info-title">
+                        Entire home hosted by <%= listing.owner ? listing.owner.username : "WanderLust Host" %>
+                    </h4>
+                    <p class="host-info-sub">
+                        8 guests &middot; 3 bedrooms &middot; 4 beds &middot; 3 baths
+                    </p>
+                </div>
+                <div>
+                    <% if (listing.owner && listing.owner.avatar && listing.owner.avatar.url) { %>
+                        <img src="<%= listing.owner.avatar.url %>" class="host-avatar-lg" style="object-fit: cover;" alt="Host Avatar">
+                    <% } else { %>
+                        <div class="host-avatar-lg">
+                            <%= listing.owner && listing.owner.username ? listing.owner.username.charAt(0).toUpperCase() : "W" %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Key Highlights -->
+            <div class="highlights-list">
+                <div class="highlight-item">
+                    <i class="fa-solid fa-key"></i>
+                    <div class="highlight-text">
+                        <h6>Self check-in</h6>
+                        <p>Check yourself in with the secure digital keypad.</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <i class="fa-solid fa-medal text-warning"></i>
+                    <div class="highlight-text">
+                        <h6><%= listing.owner ? listing.owner.username : "Host" %> is a Superhost</h6>
+                        <p>Superhosts are experienced, highly rated hosts committed to great stays.</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <i class="fa-solid fa-calendar-check text-success"></i>
+                    <div class="highlight-text">
+                        <h6>Free cancellation for 48 hours</h6>
+                        <p>Get a full refund if you change your plans within 48 hours.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="show-description-box">
+                <h5 class="fw-bold mb-3">About this space</h5>
+                <p style="white-space: pre-line;"><%= listing.description %></p>
+            </div>
+
+            <!-- Amenities -->
+            <div class="amenities-section">
+                <h5 class="fw-bold mb-3">What this place offers</h5>
+                <div class="row row-cols-1 row-cols-sm-2 g-2">
+                    <div class="col">
+                        <div class="amenity-card">
+                            <i class="fa-solid fa-wifi"></i>
+                            <span>Fast WiFi (250 Mbps)</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="amenity-card">
+                            <i class="fa-solid fa-car"></i>
+                            <span>Free parking on premises</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="amenity-card">
+                            <i class="fa-solid fa-kitchen-set"></i>
+                            <span>Fully equipped kitchen</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="amenity-card">
+                            <i class="fa-solid fa-snowflake"></i>
+                            <span>Central air conditioning</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="amenity-card">
+                            <i class="fa-solid fa-tv"></i>
+                            <span>65" 4K Smart TV with Netflix</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="amenity-card">
+                            <i class="fa-solid fa-paw"></i>
+                            <span>Pet friendly</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Section -->
+            <div class="map-section" id="mapSection">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    <div>
+                        <h5 class="fw-bold mb-0">Where you'll be</h5>
+                        <p class="text-secondary small mb-0"><%= listing.location %>, <%= listing.country %></p>
+                    </div>
+                    <a 
+                        href="https://www.google.com/maps/search/?api=1&query=<%= encodeURIComponent(listing.title + ' ' + listing.location + ' ' + listing.country) %>" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="btn btn-outline-dark btn-sm rounded-pill px-3"
+                    >
+                        <i class="fa-brands fa-google text-danger me-1"></i> Open in Google Maps
+                    </a>
+                </div>
+                <div id="listingMap" class="map-container"></div>
+            </div>
+        </div>
+
+        <!-- Right Column: Sticky Booking Widget -->
+        <div class="col-lg-5">
+            <div class="booking-sticky-card">
+                <div class="booking-price-header">
+                    <div>
+                        <span class="price-amount">&#8377;<%= (listing.price || 0).toLocaleString("en-IN") %></span>
+                        <span class="price-period">/ night</span>
+                    </div>
+                    <div class="card-rating-badge">
+                        <i class="fa-solid fa-star"></i>
+                        <span class="fw-bold">4.92</span>
+                        <span class="text-muted">(<%= listing.reviews.length %>)</span>
+                    </div>
+                </div>
+
+                <!-- Booking Inputs -->
+                <div class="booking-inputs-grid">
+                    <div class="booking-date-row">
+                        <div class="booking-input-col">
+                            <label>Check-in</label>
+                            <input type="date" id="checkInDate">
+                        </div>
+                        <div class="booking-input-col">
+                            <label>Checkout</label>
+                            <input type="date" id="checkOutDate">
+                        </div>
+                    </div>
+                    <div class="booking-guests-row">
+                        <label>Guests</label>
+                        <select id="guestsSelect">
+                            <option value="1">1 guest</option>
+                            <option value="2" selected>2 guests</option>
+                            <option value="3">3 guests</option>
+                            <option value="4">4 guests</option>
+                            <option value="5">5+ guests</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button class="booking-reserve-btn" onclick="handleReserve()">
+                    Reserve Stay
+                </button>
+                <p class="booking-disclaimer">You won't be charged yet</p>
+
+                <!-- Dynamic Price Breakdown -->
+                <div id="priceCalculation">
+                    <div class="price-breakdown-row">
+                        <span id="nightCalculationLabel">&#8377;<%= (listing.price || 0).toLocaleString("en-IN") %> &times; 3 nights</span>
+                        <span id="nightsSubtotal">&#8377;<%= ((listing.price || 0) * 3).toLocaleString("en-IN") %></span>
+                    </div>
+                    <div class="price-breakdown-row">
+                        <span>Cleaning fee</span>
+                        <span>&#8377;850</span>
+                    </div>
+                    <div class="price-breakdown-row">
+                        <span>WanderLust service fee</span>
+                        <span>&#8377;1,200</span>
+                    </div>
+                    <div class="price-breakdown-row">
+                        <span>Taxes (18% GST)</span>
+                        <span id="taxesAmount">&#8377;<%= Math.round((listing.price * 3) * 0.18).toLocaleString("en-IN") %></span>
+                    </div>
+                    <div class="price-breakdown-row total">
+                        <span>Total before taxes</span>
+                        <span id="grandTotal">&#8377;<%= (Math.round((listing.price * 3) * 1.18) + 850 + 1200).toLocaleString("en-IN") %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section" id="reviewsSection">
+        <hr class="mb-4">
+        
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <h4 class="fw-bold m-0">
+                <i class="fa-solid fa-star text-dark me-2"></i>
+                <%= listing.reviews.length > 0 ? (4.8 + ((listing.reviews.length % 3) * 0.05)).toFixed(2) : '4.95' %>
+                &middot; <%= listing.reviews.length %> <%= listing.reviews.length === 1 ? 'review' : 'reviews' %>
+            </h4>
+        </div>
+
+        <!-- Add Review Form -->
+        <% if(currUser) { %>
+            <div class="card border rounded-4 p-4 mb-5 shadow-sm bg-light">
+                <h5 class="fw-bold mb-3">Leave a review</h5>
+                <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Overall Rating</label>
+                        <fieldset class="starability-slot">
+                            <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
+                            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                            <label for="first-rate1" title="Terrible">1 star</label>
+                            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                            <label for="first-rate2" title="Not good">2 stars</label>
+                            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                            <label for="first-rate3" title="Average">3 stars</label>
+                            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                            <label for="first-rate4" title="Very good">4 stars</label>
+                            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                            <label for="first-rate5" title="Amazing">5 stars</label>
+                        </fieldset>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="comment" class="form-label fw-semibold">Share your experience</label>
+                        <textarea 
+                            name="review[comment]" 
+                            id="comment" 
+                            rows="3" 
+                            class="form-control rounded-3" 
+                            placeholder="What did you love about this stay? How was the host?" 
+                            required
+                        ></textarea>
+                        <div class="invalid-feedback">Please write a short comment before submitting.</div>
+                    </div>
+
+                    <button class="btn btn-dark rounded-pill px-4 py-2">
+                        Submit Review
+                    </button>
+                </form>
+            </div>
+        <% } else { %>
+            <div class="alert alert-light border rounded-4 p-3 mb-4 d-flex align-items-center justify-content-between">
+                <span>Want to leave a review for this property?</span>
+                <a href="/login" class="btn btn-outline-dark btn-sm rounded-pill px-3">Log in to review</a>
+            </div>
+        <% } %>
+
+        <!-- Existing Reviews Grid -->
+        <% if(listing.reviews.length > 0) { %>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                <% for(let review of listing.reviews) { %>
+                    <div class="col">
+                        <div class="review-card-modern">
+                            <div class="reviewer-meta">
+                                <div class="reviewer-avatar">
+                                    <%= review.author && review.author.username ? review.author.username.charAt(0).toUpperCase() : 'U' %>
+                                </div>
+                                <div>
+                                    <h6 class="reviewer-name">@<%= review.author ? review.author.username : 'traveler' %></h6>
+                                    <p class="review-date">Verified Guest &middot; Recent stay</p>
+                                </div>
+                            </div>
+
+                            <p class="starability-result mb-2" data-rating="<%= review.rating %>"></p>
+                            <p class="review-comment-text"><%= review.comment %></p>
+
+                            <% if(currUser && review.author && currUser._id.equals(review.author._id)) { %>
+                                <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" class="m-0 pt-2">
+                                    <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none" style="font-size: 0.82rem;">
+                                        <i class="fa-solid fa-trash-can me-1"></i> Delete review
+                                    </button>
+                                </form>
+                            <% } %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        <% } else { %>
+            <p class="text-secondary">No reviews yet for this listing. Be the first to share your thoughts!</p>
+        <% } %>
+    </div>
+</div>
+
+<!-- Interactive Map and Booking Scripts -->
+<script>
+    // Initialize Dates for Booking Widget
+    const checkInInput = document.getElementById('checkInDate');
+    const checkOutInput = document.getElementById('checkOutDate');
+    const basePrice = <%= listing.price || 1000 %>;
+
+    const today = new Date();
+    const inDate = new Date(today);
+    inDate.setDate(today.getDate() + 2);
+    const outDate = new Date(today);
+    outDate.setDate(today.getDate() + 5);
+
+    if (checkInInput && checkOutInput) {
+        checkInInput.value = inDate.toISOString().split('T')[0];
+        checkOutInput.value = outDate.toISOString().split('T')[0];
+
+        function recalculateBooking() {
+            const d1 = new Date(checkInInput.value);
+            const d2 = new Date(checkOutInput.value);
+            let diffTime = d2 - d1;
+            let nights = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)));
+
+            const nightsSubtotal = basePrice * nights;
+            const taxes = Math.round(nightsSubtotal * 0.18);
+            const cleaningFee = 850;
+            const serviceFee = 1200;
+            const grandTotal = nightsSubtotal + taxes + cleaningFee + serviceFee;
+
+            document.getElementById('nightCalculationLabel').innerHTML = `&#8377;${basePrice.toLocaleString("en-IN")} &times; ${nights} nights`;
+            document.getElementById('nightsSubtotal').innerHTML = `&#8377;${nightsSubtotal.toLocaleString("en-IN")}`;
+            document.getElementById('taxesAmount').innerHTML = `&#8377;${taxes.toLocaleString("en-IN")}`;
+            document.getElementById('grandTotal').innerHTML = `&#8377;${grandTotal.toLocaleString("en-IN")}`;
+        }
+
+        checkInInput.addEventListener('change', recalculateBooking);
+        checkOutInput.addEventListener('change', recalculateBooking);
+    }
+
+    function handleReserve() {
+        alert("🎉 Congratulations! Your reservation inquiry for '<%= listing.title %>' has been confirmed! An email confirmation has been sent.");
+    }
+
+    // Share link to clipboard
+    function shareListing() {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert("📋 Listing link copied to clipboard!");
+            });
+        } else {
+            alert(window.location.href);
+        }
+    }
+
+    // Save to favorites
+    function toggleSave(id) {
+        const heart = document.getElementById('saveHeartIcon');
+        const isSolid = heart.classList.contains('fa-solid');
+        if (isSolid) {
+            heart.classList.remove('fa-solid', 'text-danger');
+            heart.classList.add('fa-regular');
+        } else {
+            heart.classList.remove('fa-regular');
+            heart.classList.add('fa-solid', 'text-danger');
+        }
+    }
+
+    // Initialize Interactive Map with Accurate Geocoded Location
+    document.addEventListener("DOMContentLoaded", async () => {
+        const locationName = "<%= listing.location %>, <%= listing.country %>";
+        const listingTitle = "<%= listing.title %>";
+        const mapContainer = document.getElementById('listingMap');
+        if (!mapContainer || typeof L === 'undefined') return;
+
+        let serverLng = <%= (listing.geometry && listing.geometry.coordinates && listing.geometry.coordinates[0]) || 0 %>;
+        let serverLat = <%= (listing.geometry && listing.geometry.coordinates && listing.geometry.coordinates[1]) || 0 %>;
+
+        let lat = serverLat;
+        let lng = serverLng;
+
+        // If coordinates missing or default, geocode live using OpenStreetMap Nominatim
+        if (!lat || !lng || (lat === 28.6139 && lng === 77.2090)) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}&limit=1`, {
+                    headers: { 'User-Agent': 'WanderLustApp/1.0' }
+                });
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    lat = parseFloat(data[0].lat);
+                    lng = parseFloat(data[0].lon);
+                }
+            } catch(e) {
+                if (!lat) lat = 28.6139;
+                if (!lng) lng = 77.2090;
+            }
+        }
+
+        const map = L.map('listingMap').setView([lat, lng], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Custom pulsing marker icon
+        const customIcon = L.divIcon({
+            className: 'custom-map-pin',
+            html: `<div style="background: #ff385c; color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(255, 56, 92, 0.5); border: 2.5px solid white; font-size: 1rem;"><i class="fa-solid fa-house"></i></div>`,
+            iconSize: [38, 38],
+            iconAnchor: [19, 19],
+            popupAnchor: [0, -22]
+        });
+
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(listingTitle + ' ' + locationName)}`;
+
+        const marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+        marker.bindPopup(`
+            <div style="font-family: inherit; padding: 4px;">
+                <strong style="font-size: 0.95rem; display: block; margin-bottom: 2px;">${listingTitle}</strong>
+                <span style="color: #666; font-size: 0.82rem; display: block; margin-bottom: 8px;">${locationName}</span>
+                <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: #222; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; text-decoration: none; font-weight: 600;">
+                    <i class="fa-brands fa-google" style="color: #ea4335; margin-right: 4px;"></i> Open in Google Maps
+                </a>
+            </div>
+        `).openPopup();
+    });
+</script>

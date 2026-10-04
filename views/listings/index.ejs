@@ -1,0 +1,267 @@
+<% layout("/layouts/boilerplate") %>
+
+<!-- Category Filters Bar & Controls -->
+<div class="filters-bar">
+    <button id="scrollLeftBtn" class="filter-scroll-arrow" style="display: none;" title="Scroll Left">
+        <i class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <div class="filters-wrapper">
+        <div id="filters">
+            <div class="filter-item <%= (!activeCategory || activeCategory === 'All') ? 'active' : '' %>" data-filter="All">
+                <i class="fa-solid fa-globe"></i>
+                <span>All</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Trending' ? 'active' : '' %>" data-filter="Trending">
+                <i class="fa-solid fa-fire"></i>
+                <span>Trending</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Beachfront' ? 'active' : '' %>" data-filter="Beachfront">
+                <i class="fa-solid fa-umbrella-beach"></i>
+                <span>Beachfront</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Rooms' ? 'active' : '' %>" data-filter="Rooms">
+                <i class="fa-solid fa-bed"></i>
+                <span>Rooms</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Iconic Cities' ? 'active' : '' %>" data-filter="Iconic Cities">
+                <i class="fa-solid fa-city"></i>
+                <span>Cities</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Mountains' ? 'active' : '' %>" data-filter="Mountains">
+                <i class="fa-solid fa-mountain"></i>
+                <span>Mountains</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Castles' ? 'active' : '' %>" data-filter="Castles">
+                <i class="fa-brands fa-fort-awesome"></i>
+                <span>Castles</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Amazing pools' ? 'active' : '' %>" data-filter="Amazing pools">
+                <i class="fa-solid fa-person-swimming"></i>
+                <span>Pools</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Camping' ? 'active' : '' %>" data-filter="Camping">
+                <i class="fa-solid fa-campground"></i>
+                <span>Camping</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Farms' ? 'active' : '' %>" data-filter="Farms">
+                <i class="fa-solid fa-cow"></i>
+                <span>Farms</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Arctic' ? 'active' : '' %>" data-filter="Arctic">
+                <i class="fa-regular fa-snowflake"></i>
+                <span>Arctic</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Domes' ? 'active' : '' %>" data-filter="Domes">
+                <i class="fa-solid fa-igloo"></i>
+                <span>Domes</span>
+            </div>
+            <div class="filter-item <%= activeCategory === 'Boats' ? 'active' : '' %>" data-filter="Boats">
+                <i class="fa-solid fa-ship"></i>
+                <span>Boats</span>
+            </div>
+        </div>
+    </div>
+
+    <button id="scrollRightBtn" class="filter-scroll-arrow" title="Scroll Right">
+        <i class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <!-- Tax Switch Toggle -->
+    <div class="tax-toggle-box d-none d-lg-flex">
+        <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+            <input class="form-check-input" type="checkbox" role="switch" id="taxSwitch">
+            <label class="form-check-label" for="taxSwitch">Display total after taxes</label>
+        </div>              
+    </div>
+</div>
+
+<!-- Search Notification if Query Applied -->
+<% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-2 px-1">
+        <p class="text-secondary m-0">Showing results for <strong>"<%= searchQuery %>"</strong></p>
+        <a href="/listings" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Clear Search</a>
+    </div>
+<% } %>
+
+<!-- Listings Grid -->
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mt-1" id="listingsContainer">
+    <% for(let listing of allListings) { 
+        let rawPrice = listing.price || 0;
+        let taxPrice = Math.round(rawPrice * 1.18);
+    %>
+        <div class="col listing-item" data-category="<%= listing.category %>" data-title="<%= listing.title %>" data-location="<%= listing.location %>">
+            <div class="modern-listing-card">
+                <!-- Heart / Wishlist Button -->
+                <button class="wishlist-btn" data-id="<%= listing._id %>" onclick="toggleWishlist(event, '<%= listing._id %>')" title="Save to favorites">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+
+                <!-- Category Badge -->
+                <% if (listing.category) { %>
+                    <span class="card-badge"><%= listing.category %></span>
+                <% } %>
+
+                <a href="/listings/<%= listing._id %>" class="listing-link">
+                    <div class="card-img-wrapper">
+                        <img 
+                            src="<%= (listing.image && typeof listing.image === 'string' && listing.image.trim()) ? listing.image.trim() : (listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=60') %>" 
+                            alt="<%= listing.title %>" 
+                            loading="lazy"
+                        >
+                    </div>
+
+                    <div class="card-info">
+                        <div class="card-title-row">
+                            <h6 class="card-listing-title"><%= listing.title %></h6>
+                            <span class="card-rating-badge">
+                                <i class="fa-solid fa-star"></i>
+                                <%= (4.8 + ((listing.title.length % 3) * 0.08)).toFixed(2) %>
+                            </span>
+                        </div>
+
+                        <p class="card-location-sub">
+                            <i class="fa-solid fa-location-dot me-1 text-secondary" style="font-size: 0.75rem;"></i>
+                            <%= listing.location %>, <%= listing.country %>
+                        </p>
+
+                        <p class="card-price-row">
+                            <span class="base-price">
+                                <span class="card-price-num">&#8377;<%= rawPrice.toLocaleString("en-IN") %></span> / night
+                            </span>
+                            <span class="tax-price d-none">
+                                <span class="card-price-num">&#8377;<%= taxPrice.toLocaleString("en-IN") %></span> total after tax
+                            </span>
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<!-- Empty State -->
+<div id="emptyState" class="text-center py-5 <%= allListings.length === 0 ? '' : 'd-none' %>">
+    <div class="mb-3">
+        <i class="fa-regular fa-compass fa-3x text-muted"></i>
+    </div>
+    <h4 class="fw-bold">No exact matches found</h4>
+    <p class="text-secondary">Try changing or clearing some of your filters or searching for another destination.</p>
+    <a href="/listings" class="btn btn-dark rounded-pill px-4 py-2 mt-2">Reset All Filters</a>
+</div>
+
+<script>
+    // Tax Toggle Handler
+    const taxSwitch = document.getElementById("taxSwitch");
+    if (taxSwitch) {
+        taxSwitch.addEventListener("change", function() {
+            const basePrices = document.querySelectorAll(".base-price");
+            const taxPrices = document.querySelectorAll(".tax-price");
+            
+            if (this.checked) {
+                basePrices.forEach(el => el.classList.add("d-none"));
+                taxPrices.forEach(el => el.classList.remove("d-none"));
+            } else {
+                basePrices.forEach(el => el.classList.remove("d-none"));
+                taxPrices.forEach(el => el.classList.add("d-none"));
+            }
+        });
+    }
+
+    // Category Carousel Scroll
+    const filtersContainer = document.getElementById('filters');
+    const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+    const scrollRightBtn = document.getElementById('scrollRightBtn');
+
+    function updateScrollArrows() {
+        if (!filtersContainer) return;
+        const scrollLeft = filtersContainer.scrollLeft;
+        const maxScroll = filtersContainer.scrollWidth - filtersContainer.clientWidth;
+
+        scrollLeftBtn.style.display = scrollLeft > 10 ? 'flex' : 'none';
+        scrollRightBtn.style.display = scrollLeft < (maxScroll - 10) ? 'flex' : 'none';
+    }
+
+    if (filtersContainer) {
+        filtersContainer.addEventListener('scroll', updateScrollArrows);
+        window.addEventListener('resize', updateScrollArrows);
+        setTimeout(updateScrollArrows, 300);
+
+        scrollRightBtn.addEventListener('click', () => {
+            filtersContainer.scrollBy({ left: 240, behavior: 'smooth' });
+        });
+
+        scrollLeftBtn.addEventListener('click', () => {
+            filtersContainer.scrollBy({ left: -240, behavior: 'smooth' });
+        });
+    }
+
+    // Interactive Client-Side Category Filtering
+    const filterItems = document.querySelectorAll('.filter-item');
+    const listingItems = document.querySelectorAll('.listing-item');
+    const emptyState = document.getElementById('emptyState');
+
+    filterItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const targetCategory = item.getAttribute('data-filter');
+
+            filterItems.forEach(f => f.classList.remove('active'));
+            item.classList.add('active');
+
+            let visibleCount = 0;
+            listingItems.forEach(card => {
+                const itemCategory = card.getAttribute('data-category');
+                if (targetCategory === 'All' || itemCategory === targetCategory) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (emptyState) {
+                if (visibleCount === 0) {
+                    emptyState.classList.remove('d-none');
+                } else {
+                    emptyState.classList.add('d-none');
+                }
+            }
+        });
+    });
+
+    // Wishlist (Favorites) LocalStorage persistence
+    function getFavorites() {
+        try {
+            return JSON.parse(localStorage.getItem('wanderlust_favs') || '[]');
+        } catch(e) {
+            return [];
+        }
+    }
+
+    function toggleWishlist(e, id) {
+        e.preventDefault();
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        let favs = getFavorites();
+        
+        if (favs.includes(id)) {
+            favs = favs.filter(item => item !== id);
+            btn.classList.remove('active');
+        } else {
+            favs.push(id);
+            btn.classList.add('active');
+        }
+        localStorage.setItem('wanderlust_favs', JSON.stringify(favs));
+    }
+
+    // Initialize Favorites on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const favs = getFavorites();
+        document.querySelectorAll('.wishlist-btn').forEach(btn => {
+            const id = btn.getAttribute('data-id');
+            if (favs.includes(id)) {
+                btn.classList.add('active');
+            }
+        });
+    });
+</script>

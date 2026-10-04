@@ -1,0 +1,108 @@
+<nav class="navbar navbar-expand-md navbar-custom sticky-top">
+  <div class="container-fluid px-md-4">
+    <!-- Brand Logo -->
+    <a class="brand-logo" href="/listings">
+      <i class="fa-solid fa-compass"></i>
+      <span class="brand-name">wanderlust</span>
+    </a>
+
+    <!-- Center Search Capsule -->
+    <div class="d-none d-md-flex mx-auto">
+      <form class="search-pill-container" role="search" action="/listings" method="GET">
+        <input
+          type="search"
+          name="search"
+          placeholder="Search by destination, country, or category..."
+          value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+          aria-label="Search"
+        />
+        <button class="search-pill-btn" type="submit" title="Search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Side Actions -->
+    <div class="d-flex align-items-center gap-2">
+      <a class="host-home-link d-none d-sm-inline-block" href="/listings/new">
+        Airbnb your home
+      </a>
+
+      <!-- User Menu Dropdown -->
+      <div class="dropdown">
+        <button
+          class="user-menu-btn"
+          type="button"
+          id="userMenuDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="fa-solid fa-bars text-secondary"></i>
+          <% if (currUser) { %>
+            <% if (currUser.avatar && currUser.avatar.url) { %>
+              <img src="<%= currUser.avatar.url %>" class="user-avatar-circle" style="object-fit: cover;" alt="Avatar">
+            <% } else { %>
+              <div class="user-avatar-circle">
+                <%= currUser.username.charAt(0).toUpperCase() %>
+              </div>
+            <% } %>
+          <% } else { %>
+            <div class="user-avatar-circle" style="background: #717171;">
+              <i class="fa-solid fa-user" style="font-size: 0.8rem;"></i>
+            </div>
+          <% } %>
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu" aria-labelledby="userMenuDropdown">
+          <% if (currUser) { %>
+            <li class="px-3 py-2 border-bottom">
+              <span class="d-block text-muted" style="font-size: 0.75rem;">Signed in as</span>
+              <span class="fw-bold text-dark">@<%= currUser.username %></span>
+            </li>
+            <li><a class="dropdown-item" href="/profile"><i class="fa-solid fa-id-badge me-2 text-secondary"></i>Account & Profile</a></li>
+            <li><a class="dropdown-item" href="/listings"><i class="fa-solid fa-compass me-2 text-secondary"></i>Explore Listings</a></li>
+            <li><a class="dropdown-item" href="/listings/new"><i class="fa-solid fa-plus-circle me-2 text-secondary"></i>Airbnb your home</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item text-danger fw-semibold" href="/logout">
+                <i class="fa-solid fa-right-from-bracket me-2"></i>Log Out
+              </a>
+            </li>
+          <% } else { %>
+            <li>
+              <a class="dropdown-item fw-bold text-dark" href="/login">
+                <i class="fa-solid fa-arrow-right-to-bracket me-2 text-secondary"></i>Log In
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/signup">
+                <i class="fa-solid fa-user-plus me-2 text-secondary"></i>Sign Up
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="/listings/new">
+                <i class="fa-solid fa-house-chimney me-2 text-secondary"></i>Airbnb your home
+              </a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Search Bar (underneath on small devices) -->
+  <div class="d-flex d-md-none w-100 mt-2 px-2">
+    <form class="search-pill-container w-100" role="search" action="/listings" method="GET">
+      <input
+        type="search"
+        name="search"
+        placeholder="Search destinations..."
+        value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+      />
+      <button class="search-pill-btn" type="submit">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+    </form>
+  </div>
+</nav>

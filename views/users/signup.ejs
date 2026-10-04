@@ -1,0 +1,66 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-compass text-danger fa-3x mb-2"></i>
+            <h2>Join WanderLust</h2>
+            <p class="auth-subtext">Discover unique stays, book homes, or list your own space.</p>
+        </div>
+
+        <form action="/signup" method="POST" novalidate class="needs-validation">
+            <div class="mb-3">
+                <label for="username" class="form-label fw-semibold">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-user text-secondary"></i></span>
+                    <input 
+                        name="username" 
+                        id="username" 
+                        type="text" 
+                        class="form-control form-control-custom" 
+                        placeholder="Choose a username" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label fw-semibold">Email address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-envelope text-secondary"></i></span>
+                    <input 
+                        name="email" 
+                        id="email" 
+                        type="email" 
+                        class="form-control form-control-custom" 
+                        placeholder="you@example.com" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label fw-semibold">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-lock text-secondary"></i></span>
+                    <input 
+                        name="password" 
+                        id="password" 
+                        type="password" 
+                        class="form-control form-control-custom" 
+                        placeholder="Create a strong password" 
+                        required
+                    >
+                </div>
+            </div>
+
+            <button class="btn-auth-submit mt-2 mb-3">
+                Create Account
+            </button>
+        </form>
+
+        <p class="text-center text-secondary mb-0" style="font-size: 0.9rem;">
+            Already have an account? <a href="/login" class="text-dark fw-bold text-decoration-none">Log in</a>
+        </p>
+    </div>
+</div>
